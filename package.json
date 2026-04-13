@@ -4,7 +4,11 @@
   "private": true,
   "description": "Prototype for a pinyin gobang generator and practice website.",
   "scripts": {
-    "dev": "python3 -m http.server 4173 -d public"
+    "dev": "python3 -m http.server 4173 -d public",
+    "cf:dev": "wrangler pages dev public --local --port 4173",
+    "deploy": "wrangler pages deploy public --project-name pinyin-gobang"
+  },
+  "devDependencies": {
+    "wrangler": "^4.11.1"
   }
 }
-

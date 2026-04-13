@@ -19,3 +19,28 @@ cd /Users/hanwang/Desktop/wanghan/Workspace/pinyin-gobang
 python3 -m http.server 4173 -d public
 ```
 
+## Cloudflare Pages
+
+This project is configured for the Cloudflare Pages project `pinyin-gobang`.
+
+Local preview with Wrangler:
+
+```bash
+cd /Users/hanwang/Desktop/wanghan/Workspace/pinyin-gobang
+npm install
+npm run cf:dev
+```
+
+Deploy:
+
+```bash
+cd /Users/hanwang/Desktop/wanghan/Workspace/pinyin-gobang
+npm install
+npm run deploy
+```
+
+Suggested Pages settings:
+
+- Framework preset: `None`
+- Build command: empty
+- Build output directory: `public`
