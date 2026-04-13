@@ -18,34 +18,34 @@ const presets = {
         title: "一年级上册 · 第一单元",
         description: "拼音入门与常见动物、身体词汇。",
         items: [
-            { pinyin: "ma", hanzi: "马" },
-            { pinyin: "ba", hanzi: "爸" },
-            { pinyin: "miao", hanzi: "喵" },
-            { pinyin: "niu", hanzi: "牛" },
-            { pinyin: "yu", hanzi: "鱼" },
-            { pinyin: "yang", hanzi: "羊" },
-            { pinyin: "shou", hanzi: "手" },
-            { pinyin: "zu", hanzi: "足" },
-            { pinyin: "mu", hanzi: "木" },
-            { pinyin: "huo", hanzi: "火" },
-            { pinyin: "kou", hanzi: "口" },
-            { pinyin: "er", hanzi: "耳" },
-            { pinyin: "ri", hanzi: "日" },
-            { pinyin: "yue", hanzi: "月" }
+            { pinyin: "ma3", hanzi: "马" },
+            { pinyin: "ba4", hanzi: "爸" },
+            { pinyin: "miao1", hanzi: "喵" },
+            { pinyin: "niu2", hanzi: "牛" },
+            { pinyin: "yu2", hanzi: "鱼" },
+            { pinyin: "yang2", hanzi: "羊" },
+            { pinyin: "shou3", hanzi: "手" },
+            { pinyin: "zu2", hanzi: "足" },
+            { pinyin: "mu4", hanzi: "木" },
+            { pinyin: "huo3", hanzi: "火" },
+            { pinyin: "kou3", hanzi: "口" },
+            { pinyin: "er3", hanzi: "耳" },
+            { pinyin: "ri4", hanzi: "日" },
+            { pinyin: "yue4", hanzi: "月" }
         ]
     },
     animals: {
         title: "动物主题词语",
         description: "适合词语识读和口语表达活动。",
         items: [
-            { pinyin: "xiong mao", hanzi: "熊猫" },
-            { pinyin: "chang jing lu", hanzi: "长颈鹿" },
-            { pinyin: "xiao gou", hanzi: "小狗" },
-            { pinyin: "xiao mao", hanzi: "小猫" },
-            { pinyin: "hai tun", hanzi: "海豚" },
-            { pinyin: "jing yu", hanzi: "鲸鱼" },
-            { pinyin: "song shu", hanzi: "松鼠" },
-            { pinyin: "xiao niao", hanzi: "小鸟" }
+            { pinyin: "xiong2 mao1", hanzi: "熊猫" },
+            { pinyin: "chang2 jing3 lu4", hanzi: "长颈鹿" },
+            { pinyin: "xiao3 gou3", hanzi: "小狗" },
+            { pinyin: "xiao3 mao1", hanzi: "小猫" },
+            { pinyin: "hai3 tun2", hanzi: "海豚" },
+            { pinyin: "jing1 yu2", hanzi: "鲸鱼" },
+            { pinyin: "song1 shu3", hanzi: "松鼠" },
+            { pinyin: "xiao3 niao3", hanzi: "小鸟" }
         ]
     }
 };
@@ -134,19 +134,87 @@ function normalizeItem(item) {
     return item;
 }
 
+const toneMap = {
+    a: ["a", "ā", "á", "ǎ", "à"],
+    e: ["e", "ē", "é", "ě", "è"],
+    i: ["i", "ī", "í", "ǐ", "ì"],
+    o: ["o", "ō", "ó", "ǒ", "ò"],
+    u: ["u", "ū", "ú", "ǔ", "ù"],
+    ü: ["ü", "ǖ", "ǘ", "ǚ", "ǜ"]
+};
+
+function normalizeUmlaut(text) {
+    return text
+        .replaceAll("u:", "ü")
+        .replaceAll("v", "ü");
+}
+
+function tonePosition(syllable) {
+    if (syllable.includes("a")) {
+        return syllable.indexOf("a");
+    }
+    if (syllable.includes("o")) {
+        return syllable.indexOf("o");
+    }
+    if (syllable.includes("e")) {
+        return syllable.indexOf("e");
+    }
+    if (syllable.includes("iu")) {
+        return syllable.indexOf("u");
+    }
+    if (syllable.includes("ui")) {
+        return syllable.indexOf("i");
+    }
+
+    const vowels = ["i", "u", "ü"];
+    for (let index = syllable.length - 1; index >= 0; index -= 1) {
+        if (vowels.includes(syllable[index])) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+function convertNumberedSyllable(syllable) {
+    const normalized = normalizeUmlaut(syllable.trim().toLowerCase());
+    const match = normalized.match(/^([a-zü]+)([0-5])$/i);
+    if (!match) {
+        return normalized;
+    }
+
+    const [, base, toneNumberText] = match;
+    const toneNumber = Number(toneNumberText);
+    if (toneNumber === 0 || toneNumber === 5) {
+        return base;
+    }
+
+    const markIndex = tonePosition(base);
+    if (markIndex < 0) {
+        return base;
+    }
+
+    const target = base[markIndex];
+    const marked = toneMap[target]?.[toneNumber];
+    if (!marked) {
+        return base;
+    }
+
+    return `${base.slice(0, markIndex)}${marked}${base.slice(markIndex + 1)}`;
+}
+
 function toneLabel(text) {
     return text
-        .split(" ")
-        .map((syllable, syllableIndex) => {
-            const vowels = ["a", "o", "e", "i", "u", "u:"];
-            const hasVowel = vowels.some((char) => syllable.includes(char));
-            if (!hasVowel) {
-                return syllable;
-            }
-            const tone = (syllableIndex % 4) + 1;
-            return `${syllable}${tone}`;
-        })
+        .split(/\s+/)
+        .map((syllable) => convertNumberedSyllable(syllable))
         .join(" ");
+}
+
+function displayPinyin(text, showTone = true) {
+    const normalized = normalizeUmlaut(text);
+    if (!showTone) {
+        return normalized.replace(/[0-5]/g, "");
+    }
+    return toneLabel(normalized);
 }
 
 function getItems(state) {
@@ -283,7 +351,7 @@ function renderMeta(state) {
     const items = getItems(state);
     const summaryItems = items
         .slice(0, 12)
-        .map((item) => normalizeItem(item).pinyin)
+        .map((item) => displayPinyin(normalizeItem(item).pinyin, state.showTone))
         .join("、");
 
     dataSummaryText.textContent = `${preset.description} 当前词库共 ${items.length} 项，预览示例：${summaryItems}${items.length > 12 ? "…" : ""}`;
@@ -293,7 +361,7 @@ function renderMeta(state) {
 function buildTeacherHint(items, state) {
     const examples = items
         .slice(0, 6)
-        .map((item) => normalizeItem(item).pinyin)
+        .map((item) => displayPinyin(normalizeItem(item).pinyin, state.showTone))
         .join("、");
     if (state.contentMode === "word") {
         return `建议先挑 3 到 5 个词语做示范朗读，再要求学生用其中两个词语连成一句话。当前示例：${examples}`;
