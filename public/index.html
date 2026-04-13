@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼音五子棋实验室</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Pinyin Gobang Lab</p>
+                <h1>把拼音练习做成一张可以玩、可以打、可以分享的五子棋海报</h1>
+                <p class="hero-text">
+                    面向老师、家长和低年级学生的拼音教具原型。先生成棋盘，再在线练习，最后输出打印版。
+                </p>
+                <div class="hero-actions">
+                    <a class="button primary" href="#generator">开始生成</a>
+                    <a class="button ghost" href="#preview">查看棋盘预览</a>
+                </div>
+                <ul class="hero-points">
+                    <li>支持拼音范围、棋盘尺寸、显示层级自定义</li>
+                    <li>同一套数据同时驱动网页预览和打印布局</li>
+                    <li>后续可扩展在线练习、登录保存、PDF 导出</li>
+                </ul>
+            </div>
+            <div class="hero-poster">
+                <div class="mini-poster">
+                    <div class="mini-badge">原型</div>
+                    <div class="mini-board">
+                        <span>sh</span>
+                        <span>ao</span>
+                        <span>zhi</span>
+                        <span>ing</span>
+                        <span>ü</span>
+                        <span>uan</span>
+                        <span>ch</span>
+                        <span>ong</span>
+                        <span>ie</span>
+                    </div>
+                    <p>海报式棋盘预览</p>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="section">
+                <div class="section-heading">
+                    <p class="eyebrow">Core Modes</p>
+                    <h2>先把三件事分清楚</h2>
+                </div>
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <h3>生成器</h3>
+                        <p>老师配置拼音范围、词语池、棋盘尺寸和版式，实时生成教具棋盘。</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>在线练习</h3>
+                        <p>后续接入同屏落子、找读任务、组词造句等互动玩法，复用生成结果。</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>打印导出</h3>
+                        <p>海报布局与打印布局保持一致，后续可以扩展为浏览器打印和标准 PDF。</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="workspace" id="generator">
+                <div class="section-heading">
+                    <p class="eyebrow">Prototype Workspace</p>
+                    <h2>首页 + 生成器 + 棋盘预览</h2>
+                </div>
+
+                <div class="workspace-grid">
+                    <aside class="control-panel">
+                        <div class="panel-head">
+                            <h3>棋盘设置</h3>
+                            <p>修改参数后自动刷新预览。</p>
+                        </div>
+
+                        <form id="generator-form" class="generator-form">
+                            <label class="field">
+                                <span>内容模式</span>
+                                <select id="contentMode" name="contentMode">
+                                    <option value="syllable">拼音音节</option>
+                                    <option value="syllable_hanzi">拼音 + 汉字提示</option>
+                                    <option value="word">词语练习</option>
+                                    <option value="custom">自定义词库</option>
+                                </select>
+                            </label>
+
+                            <div class="field-row">
+                                <label class="field">
+                                    <span>棋盘尺寸</span>
+                                    <select id="boardSize" name="boardSize">
+                                        <option value="9">9 x 9</option>
+                                        <option value="11" selected>11 x 11</option>
+                                        <option value="13">13 x 13</option>
+                                        <option value="15">15 x 15</option>
+                                    </select>
+                                </label>
+
+                                <label class="field">
+                                    <span>随机种子</span>
+                                    <input id="seed" name="seed" type="number" value="20260413" min="1" max="99999999">
+                                </label>
+                            </div>
+
+                            <label class="field">
+                                <span>预设范围</span>
+                                <select id="preset" name="preset">
+                                    <option value="initials">声母基础</option>
+                                    <option value="finals">韵母基础</option>
+                                    <option value="overall">整体认读音节</option>
+                                    <option value="g1_unit1" selected>一年级上册 · 第一单元</option>
+                                    <option value="animals">动物主题词语</option>
+                                </select>
+                            </label>
+
+                            <label class="field">
+                                <span>自定义内容</span>
+                                <textarea id="customInput" name="customInput" rows="5" placeholder="用逗号、空格或换行分隔，例如：ba, pa, ma, fa"></textarea>
+                            </label>
+
+                            <div class="field-row toggles">
+                                <label class="toggle">
+                                    <input id="showTone" name="showTone" type="checkbox" checked>
+                                    <span>显示声调</span>
+                                </label>
+                                <label class="toggle">
+                                    <input id="showHelper" name="showHelper" type="checkbox" checked>
+                                    <span>显示玩法提示</span>
+                                </label>
+                            </div>
+
+                            <div class="field-row toggles">
+                                <label class="toggle">
+                                    <input id="allowRepeat" name="allowRepeat" type="checkbox" checked>
+                                    <span>允许重复填充</span>
+                                </label>
+                                <label class="toggle">
+                                    <input id="showHanzi" name="showHanzi" type="checkbox">
+                                    <span>优先显示汉字</span>
+                                </label>
+                            </div>
+
+                            <div class="action-row">
+                                <button class="button primary" type="submit">重新生成</button>
+                                <button class="button ghost" id="randomSeedButton" type="button">换一个种子</button>
+                            </div>
+                        </form>
+
+                        <div class="print-settings">
+                            <div class="panel-head compact">
+                                <h3>打印设置</h3>
+                                <p>控制导出 PDF 时的版面信息。</p>
+                            </div>
+                            <div class="generator-form">
+                                <div class="field-row">
+                                    <label class="field">
+                                        <span>纸张规格</span>
+                                        <select id="paperSizeSelect">
+                                            <option value="a4" selected>A4 横向</option>
+                                            <option value="a3">A3 横向</option>
+                                        </select>
+                                    </label>
+                                    <label class="field">
+                                        <span>打印层</span>
+                                        <select id="printLayerSelect">
+                                            <option value="clean" selected>干净棋盘</option>
+                                            <option value="stones">保留当前落子</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <label class="field">
+                                    <span>打印主标题</span>
+                                    <input id="printTitleInput" type="text" value="拼音五子棋课堂练习单">
+                                </label>
+                                <label class="field">
+                                    <span>打印副标题</span>
+                                    <input id="printSubtitleInput" type="text" value="边读边下，先连成五子获胜">
+                                </label>
+                                <label class="field">
+                                    <span>页脚信息</span>
+                                    <input id="printFooterInput" type="text" value="班级：__________  姓名：__________  日期：__________">
+                                </label>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <section class="preview-panel" id="preview">
+                        <div class="preview-head">
+                            <div>
+                                <h3 id="boardTitle">一年级上册 · 第一单元</h3>
+                                <p id="boardMeta">11 x 11 棋盘 · 拼音音节</p>
+                            </div>
+                            <div class="preview-tags">
+                                <span class="tag">实时预览</span>
+                                <span class="tag">打印布局</span>
+                                <span class="tag accent">在线练习</span>
+                            </div>
+                        </div>
+
+                        <div class="print-toolbar">
+                            <div class="print-mode-switch" role="group" aria-label="打印模式">
+                                <button class="button ghost is-active" id="studentModeButton" type="button">学生版</button>
+                                <button class="button ghost" id="teacherModeButton" type="button">教师版</button>
+                            </div>
+                            <button class="button primary" id="printBoardButton" type="button">打印 / 导出 PDF</button>
+                        </div>
+
+                        <div class="practice-panel">
+                            <div class="practice-status">
+                                <div>
+                                    <p class="practice-label">当前回合</p>
+                                    <strong id="turnLabel">玩家一 · 蓝方</strong>
+                                </div>
+                                <div>
+                                    <p class="practice-label">练习状态</p>
+                                    <strong id="statusLabel">点击棋盘任意格子开始练习</strong>
+                                </div>
+                                <div>
+                                    <p class="practice-label">最近一步</p>
+                                    <strong id="lastMoveLabel">还没有落子</strong>
+                                </div>
+                            </div>
+                            <div class="practice-actions">
+                                <button class="button ghost" id="undoMoveButton" type="button">悔棋一步</button>
+                                <button class="button primary" id="resetGameButton" type="button">重新开局</button>
+                            </div>
+                        </div>
+
+                        <div class="poster-layout">
+                            <div class="print-header" id="printHeader">
+                                <h4 id="printTitleText">拼音五子棋课堂练习单</h4>
+                                <p id="printSubtitleText">边读边下，先连成五子获胜</p>
+                            </div>
+
+                            <div class="rule-card left" id="leftRuleCard">
+                                <p class="rule-level">一级玩法</p>
+                                <h4>读对才能落子</h4>
+                                <p>读对一个格子，才能在这个位置落下一枚棋子。先连成 5 个即可获胜。</p>
+                            </div>
+
+                            <div class="poster-board">
+                                <div id="boardSvgWrapper" class="board-svg-wrapper" aria-live="polite"></div>
+                                <div class="teacher-answer" id="teacherAnswerPanel">
+                                    <h4>教师版参考</h4>
+                                    <p id="teacherAnswerText">可用于课前提示：优先观察高频拼音、易混拼音和本课词语。</p>
+                                </div>
+                                <div class="board-footnote">
+                                    点击任意格子可直接练习双人同屏五子棋。后续这里可切换为打印页和课堂任务页。
+                                </div>
+                            </div>
+
+                            <div class="rule-card right" id="rightRuleCard">
+                                <p class="rule-level">二级玩法</p>
+                                <h4>组词或造句</h4>
+                                <p>读对以后，用这个拼音说一个词语或一句话，再继续下棋，课堂互动更完整。</p>
+                            </div>
+
+                            <div class="avatar-card">
+                                <div class="avatar-badge">A</div>
+                                <p>玩家一</p>
+                                <span>可作为角色卡/积分区</span>
+                            </div>
+
+                            <div class="avatar-card">
+                                <div class="avatar-badge orange">B</div>
+                                <p>玩家二</p>
+                                <span>后续接入战绩和得分</span>
+                            </div>
+
+                            <div class="print-footer" id="printFooterText">
+                                班级：__________  姓名：__________  日期：__________
+                            </div>
+                        </div>
+
+                        <div class="data-summary">
+                            <h4>当前词库</h4>
+                            <p id="dataSummaryText"></p>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+</html>
